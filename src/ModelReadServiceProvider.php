@@ -13,7 +13,15 @@ class ModelReadServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
+        if ($this->app->runningInConsole()) {
+            $migrationFileName = 'create_model_reads_table.php';
+
+            if (! $this->migrationFileExists($migrationFileName)) {
+                $this->publishes([
+                    __DIR__ . "/../database/migrations/{$migrationFileName}.stub" => database_path('migrations/' . date('Y_m_d_His', time()) . '_' . $migrationFileName),
+                ], 'migrations');
+            }
+        }
     }
 
     /**
@@ -23,8 +31,23 @@ class ModelReadServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->publishes([
-            __DIR__.'/../database/migrations/' => database_path('migrations')
-        ], 'migrations');
+        //
+    }
+
+    /**
+     * Checks if the given migration file already exists.
+     *
+     * @return bool
+     */
+    public static function migrationFileExists(string $migrationFileName): bool
+    {
+        $len = strlen($migrationFileName);
+        foreach (glob(database_path("migrations/*.php")) as $filename) {
+            if ((substr($filename, -$len) === $migrationFileName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

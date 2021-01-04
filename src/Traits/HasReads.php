@@ -1,11 +1,10 @@
 <?php
 
-namespace TobiSchulz\ModelRead;
+namespace TobiSchulz\ModelRead\Traits;
 
-use phpDocumentor\Reflection\Types\Boolean;
 use TobiSchulz\ModelRead\Models\Read;
 
-trait HasRead
+trait HasReads
 {
     /**
      * Collection of reads.
@@ -21,21 +20,27 @@ trait HasRead
     /**
      * Store a new read for this model and current user.
      *
-     * @return TobiSchulz\ModelRead\Models\Read
+     * @return bool
      */
-    public function read() : Read
+    public function read() : bool
     {
-        return $this->reads()->create([
+        if ($this->isRead()) {
+            return false;
+        }
+
+        $this->reads()->create([
             'user_id' => auth()->id(),
         ]);
+
+        return true;
     }
 
     /**
      * Removes a read, if it exists.
      *
-     * @return Boolean
+     * @return bool
      */
-    public function unread() : Boolean
+    public function unread() : bool
     {
         $read = $this->reads()->where([
             'user_id' => auth()->id(),
@@ -51,9 +56,9 @@ trait HasRead
     /**
      * Checks if the current user has read this model.
      *
-     * @return Boolean
+     * @return bool
      */
-    public function isRead() : Boolean
+    public function isRead() : bool
     {
         $read = $this->reads()->where([
             'user_id' => auth()->id(),
