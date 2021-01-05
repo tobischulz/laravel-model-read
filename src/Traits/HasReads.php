@@ -2,6 +2,7 @@
 
 namespace TobiSchulz\ModelRead\Traits;
 
+use PhpParser\Node\Stmt\TryCatch;
 use TobiSchulz\ModelRead\Models\Read;
 
 trait HasReads
@@ -28,9 +29,13 @@ trait HasReads
             return false;
         }
 
-        $this->reads()->create([
-            'user_id' => auth()->id(),
-        ]);
+        try {
+            $this->reads()->create([
+                'user_id' => auth()->id(),
+            ]);
+        } catch (\Illuminate\Database\QueryException $th) {
+            //throw $th;
+        }
 
         return true;
     }
